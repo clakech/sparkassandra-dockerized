@@ -13,13 +13,19 @@ RUN /bin/echo debconf shared/accepted-oracle-license-v1-1 select true | /usr/bin
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install oracle-java7-installer oracle-java7-set-default curl
 
 # download and install spark
-RUN curl -s http://d3kbcqa49mib13.cloudfront.net/spark-1.3.0-bin-hadoop2.4.tgz | tar -xz -C /usr/local/
-RUN cd /usr/local && ln -s spark-1.3.0-bin-hadoop2.4 spark
+RUN curl -s http://www.apache.org/dyn/closer.lua/spark/spark-1.6.1/spark-1.6.1.tgz | tar -xz -C /usr/local/
+RUN cd /usr/local && ln -s spark-1.6.1 spark
 
 # install cassandra
-ENV CASSANDRA_VERSION 2.1.8
-RUN apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 514A2AD631A57A16DD0047EC749D6EEC0353B12C
-RUN echo 'deb http://www.apache.org/dist/cassandra/debian 21x main' >> /etc/apt/sources.list.d/cassandra.list
+ENV CASSANDRA_VERSION 3.6
+RUN echo 'deb http://www.apache.org/dist/cassandra/debian 36 main' >> /etc/apt/sources.list.d/cassandra.list
+RUN echo 'deb-src http://www.apache.org/dist/cassandra/debian 21x main' >> /etc/apt/sources.list.d/cassandra.list
+RUN echo 'gpg --keyserver pgp.mit.edu --recv-keys F758CE318D77295D'
+RUN echo 'gpg --export --armor F758CE318D77295D | sudo apt-key add -'
+RUN echo 'gpg --keyserver pgp.mit.edu --recv-keys 2B5C1B00'
+RUN echo 'gpg --export --armor 2B5C1B00 | sudo apt-key add -'
+RUN echo 'gpg --keyserver pgp.mit.edu --recv-keys 0353B12C'
+RUN echo 'gpg --export --armor 0353B12C | sudo apt-key add -'
 RUN apt-get update \
 	&& apt-get install -y cassandra="$CASSANDRA_VERSION" \
 	&& rm -rf /var/lib/apt/lists/*
@@ -28,7 +34,7 @@ RUN apt-get update \
 COPY scripts/start-master.sh /start-master.sh
 COPY scripts/start-worker.sh /start-worker.sh
 COPY scripts/spark-shell.sh /spark-shell.sh
-COPY scripts/spark-cassandra-connector-assembly-1.3.0-RC1-SNAPSHOT.jar /spark-cassandra-connector-assembly-1.3.0-RC1-SNAPSHOT.jar
+COPY scripts/spark-cassandra-connector-1.6.0-s_2.11.jar /spark-cassandra-connector-1.6.0-s_2.11.jar
 COPY scripts/spark-defaults.conf /spark-defaults.conf
 
 # configure spark

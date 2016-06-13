@@ -5,6 +5,6 @@ cd /usr/local/spark
 	--master spark://${SPARK_MASTER_PORT_7077_TCP_ADDR}:${SPARK_MASTER_ENV_SPARK_MASTER_PORT}  \
 	--conf spark.driver.host=${SPARK_LOCAL_IP} \
 	--properties-file /spark-defaults.conf \
-	--jars /spark-cassandra-connector-assembly-1.3.0-RC1-SNAPSHOT.jar \
+	--jars /spark-cassandra-connector-1.6.0-s_2.11.jar \
 	--conf spark.cassandra.connection.host=${CASSANDRA_PORT_7001_TCP_ADDR} \
 	"$@"
