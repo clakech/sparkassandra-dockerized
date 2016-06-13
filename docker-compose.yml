@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+  spark_master:
+    image: turbineanalytics/sparkassandra-dockerized
+    command: ./start-master.sh
+  cassandra-seed:
+    image: turbineanalytics/sparkassandra-dockerized
+    links:
+      - spark_master:spark_master
+    volume:
+      - /var/lib/cassandra-seed:/var/lib/cassandra
+  cassandra-a:
+    image: turbineanalytics/sparkassandra-dockerized
+    links:
+      - spark_master:spark_master
+      - cassandra-seed:cassandra
+    volume:
+      - /var/lib/cassandra-a:/var/lib/cassandra
