@@ -8,12 +8,12 @@ services:
     image: turbineanalytics/sparkassandra-dockerized
     links:
       - spark_master:spark_master
-    volume:
+    volumes:
       - /var/lib/cassandra-seed:/var/lib/cassandra
   cassandra-a:
     image: turbineanalytics/sparkassandra-dockerized
     links:
       - spark_master:spark_master
       - cassandra-seed:cassandra
-    volume:
+    volumes:
       - /var/lib/cassandra-a:/var/lib/cassandra
