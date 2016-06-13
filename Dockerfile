@@ -1,33 +1,19 @@
-FROM debian:jessie
+FROM java:8
 
-# install and configure supervisor
-RUN apt-get update && apt-get install -y supervisor && mkdir -p /var/log/supervisor
+# install and configure supervisor + curl
+RUN apt-get update && apt-get install -y supervisor curl && mkdir -p /var/log/supervisor
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# install java & curl
-RUN echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" > /etc/apt/sources.list.d/webupd8team-java.list
-RUN echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list.d/webupd8team-java.list
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886
-RUN apt-get -y update
-RUN /bin/echo debconf shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install oracle-java7-installer oracle-java7-set-default curl
-
 # download and install spark
-RUN curl -s http://www.apache.org/dyn/closer.lua/spark/spark-1.6.1/spark-1.6.1.tgz | tar -xz -C /usr/local/
-RUN cd /usr/local && ln -s spark-1.6.1 spark
+RUN curl -s https://www.apache.org/dist/spark/spark-1.6.1/spark-1.6.1-bin-hadoop2.6.tgz | tar -xz -C /usr/local/
+RUN cd /usr/local && ln -s spark-1.6.1-bin-hadoop2.6 spark
 
 # install cassandra
-ENV CASSANDRA_VERSION 3.6
-RUN echo 'deb http://www.apache.org/dist/cassandra/debian 36 main' >> /etc/apt/sources.list.d/cassandra.list
-RUN echo 'deb-src http://www.apache.org/dist/cassandra/debian 21x main' >> /etc/apt/sources.list.d/cassandra.list
-RUN echo 'gpg --keyserver pgp.mit.edu --recv-keys F758CE318D77295D'
-RUN echo 'gpg --export --armor F758CE318D77295D | sudo apt-key add -'
-RUN echo 'gpg --keyserver pgp.mit.edu --recv-keys 2B5C1B00'
-RUN echo 'gpg --export --armor 2B5C1B00 | sudo apt-key add -'
-RUN echo 'gpg --keyserver pgp.mit.edu --recv-keys 0353B12C'
-RUN echo 'gpg --export --armor 0353B12C | sudo apt-key add -'
+RUN apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 514A2AD631A57A16DD0047EC749D6EEC0353B12C
+RUN echo 'deb http://www.apache.org/dist/cassandra/debian 35x main' >> /etc/apt/sources.list.d/cassandra.list
 RUN apt-get update \
-	&& apt-get install -y cassandra="$CASSANDRA_VERSION" \
+  && apt-get install net-tools \
+	&& apt-get install -y cassandra \
 	&& rm -rf /var/lib/apt/lists/*
 
 # copy some script to run spark
