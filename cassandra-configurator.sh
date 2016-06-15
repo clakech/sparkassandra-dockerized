@@ -29,7 +29,7 @@ if [ "$1" = '/usr/bin/supervisord' ]; then
 	: ${CASSANDRA_SEEDS:="$CASSANDRA_PORT_9042_TCP_ADDR"}
 	: ${CASSANDRA_SEEDS:="$CASSANDRA_BROADCAST_ADDRESS"}
 	
-	sed -ri 's/(- seeds:) "127.0.0.1"/\1 "'"$CASSANDRA_SEEDS"'"/' "$CASSANDRA_CONFIG/cassandra.yaml"
+	sed -ri 's/(- seeds:).*/\1 "'"$CASSANDRA_SEEDS"'"/' "$CASSANDRA_CONFIG/cassandra.yaml"
 
 	for yaml in \
 		broadcast_address \
@@ -38,6 +38,8 @@ if [ "$1" = '/usr/bin/supervisord' ]; then
 		endpoint_snitch \
 		listen_address \
 		num_tokens \
+		rpc_address \
+		start_rpc \
 	; do
 		var="CASSANDRA_${yaml^^}"
 		val="${!var}"
