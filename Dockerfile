@@ -20,7 +20,7 @@ RUN apt-get update \
 COPY scripts/start-master.sh /start-master.sh
 COPY scripts/start-worker.sh /start-worker.sh
 COPY scripts/spark-shell.sh /spark-shell.sh
-COPY scripts/spark-cassandra-connector-1.6.0-s_2.11.jar /spark-cassandra-connector-1.6.0-s_2.11.jar
+COPY scripts/spark-cassandra-connector_2.10-1.6.0.jar /spark-cassandra-connector_2.10-1.6.0.jar
 COPY scripts/spark-defaults.conf /spark-defaults.conf
 
 # configure spark
