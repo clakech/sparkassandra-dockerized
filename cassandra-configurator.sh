@@ -7,12 +7,23 @@ if [ -z "$NAME" ]; then
     echo "Now NAME=$NAME"
 fi
 
+CONFIG_FILE="/supervisor.conf/supervisord-cass.conf"
+
+case "$1" in
+   "worker") CONFIG_FILE="/supervisor.conf/supervisord-worker.conf"
+   ;;
+   "master") CONFIG_FILE="/supervisor.conf/supervisord-master.conf"
+   ;;
+   *) CONFIG_FILE="/supervisor.conf/supervisord-cass.conf"
+   ;;
+esac
+
 # first arg is `-f` or `--some-option`
 if [ "${1:0:1}" = '-' ]; then
 	set -- cassandra -f "$@"
 fi
 
-if [ "$1" = '/usr/bin/supervisord' ]; then
+if [ "$1" = 'cassandra' ]; then
 	# TODO detect if this is a restart if necessary
 	: ${CASSANDRA_LISTEN_ADDRESS='auto'}
 	if [ "$CASSANDRA_LISTEN_ADDRESS" = 'auto' ]; then
@@ -56,16 +67,5 @@ if [ "$1" = '/usr/bin/supervisord' ]; then
 		fi
 	done
 fi
-
-CONFIG_FILE="/supervisor.conf/supervisord-cass.conf"
-
-case "$FRUIT" in
-   "cassandra") CONFIG_FILE="/supervisor.conf/supervisord-cass.conf"
-   ;;
-   "worker") CONFIG_FILE="/supervisor.conf/supervisord-worker.conf"
-   ;;
-   "master") CONFIG_FILE="/supervisor.conf/supervisord-master.conf"
-   ;;
-esac
 
 exec /usr/bin/supervisord -c ${CONFIG_FILE}
