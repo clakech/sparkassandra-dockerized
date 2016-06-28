@@ -3,7 +3,7 @@ FROM java:8
 # install and configure supervisor + curl
 RUN apt-get update && apt-get install -y supervisor curl && mkdir -p /var/log/supervisor
 #COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY supervisord.conf/ /supervisord.conf/
+COPY supervisor.conf/ /supervisor.conf/
 
 # download and install spark
 RUN curl -s https://www.apache.org/dist/spark/spark-1.6.1/spark-1.6.1-bin-hadoop2.6.tgz | tar -xz -C /usr/local/
