@@ -42,14 +42,6 @@ RUN sed -ri ' \
 
 COPY cassandra-configurator.sh /cassandra-configurator.sh
 
-RUN groupadd -r caspark && useradd -r -g caspark caspark
-RUN chown caspark -R /usr/local/spark \
-                /cassandra-configurator.sh \
-                /start-master.sh \
-                /start-worker.sh \
-                /spark-shell.sh
-USER caspark
-
 ENTRYPOINT ["/cassandra-configurator.sh"]
 
 ### Spark
