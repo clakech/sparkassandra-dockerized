@@ -68,4 +68,4 @@ case "$FRUIT" in
    ;;
 esac
 
-exec /usr/bin/supervisord -c $CONFIG_FILE "$@"
+exec /usr/bin/supervisord -c ${CONFIG_FILE}
