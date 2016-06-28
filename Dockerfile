@@ -2,7 +2,8 @@ FROM java:8
 
 # install and configure supervisor + curl
 RUN apt-get update && apt-get install -y supervisor curl && mkdir -p /var/log/supervisor
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+#COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY supervisord.conf/ /supervisord.conf/
 
 # download and install spark
 RUN curl -s https://www.apache.org/dist/spark/spark-1.6.1/spark-1.6.1-bin-hadoop2.6.tgz | tar -xz -C /usr/local/
@@ -63,4 +64,4 @@ ENTRYPOINT ["/cassandra-configurator.sh"]
 # 9160: C* thrift service
 EXPOSE 4040 7000 7001 7002 7003 7004 7005 7006 7077 7199 8080 8081 8888 9042 9160
 
-CMD ["/usr/bin/supervisord"]
+CMD ["cassandra"]

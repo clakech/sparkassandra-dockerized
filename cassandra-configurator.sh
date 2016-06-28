@@ -57,4 +57,15 @@ if [ "$1" = '/usr/bin/supervisord' ]; then
 	done
 fi
 
-exec "$@"
+CONFIG_FILE="/supervisor.conf/supervisord-cass.conf"
+
+case "$FRUIT" in
+   "cassandra") CONFIG_FILE="/supervisor.conf/supervisord-cass.conf"
+   ;;
+   "worker") CONFIG_FILE="/supervisor.conf/supervisord-worker.conf"
+   ;;
+   "master") CONFIG_FILE="/supervisor.conf/supervisord-master.conf"
+   ;;
+esac
+
+exec /usr/bin/supervisord -c $CONFIG_FILE "$@"
