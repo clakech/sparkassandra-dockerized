@@ -4,6 +4,10 @@ FROM java:8
 RUN apt-get update && apt-get install -y supervisor curl && mkdir -p /var/log/supervisor
 #COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY supervisor.conf/ /supervisor.conf/
+ENV SUPERVISOR_CONF_DEFAULT "/supervisor.conf/supervisord-cass.conf"
+ENV SUPERVISOR_CONF_CASSANDRA "/supervisor.conf/supervisord-cass.conf"
+ENV SUPERVISOR_CONF_MASTER "supervisor.conf/supervisord-master.conf"
+ENV SUPERVISOR_CONF_WORKER "/supervisor.conf/supervisord-worker.conf"
 
 # download and install spark
 RUN curl -s https://www.apache.org/dist/spark/spark-1.6.1/spark-1.6.1-bin-hadoop2.6.tgz | tar -xz -C /usr/local/

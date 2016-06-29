@@ -7,15 +7,20 @@ if [ -z "$NAME" ]; then
     echo "Now NAME=$NAME"
 fi
 
-CONFIG_FILE="/supervisor.conf/supervisord-cass.conf"
+CONFIG_FILE=${SUPERVISOR_CONF_DEFAULT}
 
 case "$1" in
-   "worker") CONFIG_FILE="/supervisor.conf/supervisord-worker.conf"
-   ;;
-   "master") CONFIG_FILE="/supervisor.conf/supervisord-master.conf"
-   ;;
-   *) CONFIG_FILE="/supervisor.conf/supervisord-cass.conf"
-   ;;
+    "master")
+        CONFIG_FILE=${SUPERVISOR_CONF_MASTER}
+    ;;
+    "worker")
+        CONFIG_FILE=${SUPERVISOR_CONF_WORKER}
+        init_cassandra()
+    ;;
+    "cassandra")
+        CONFIG_FILE=${SUPERVISOR_CONF_CASSANDRA}
+        init_cassandra()
+    ;;
 esac
 
 # first arg is `-f` or `--some-option`
@@ -23,7 +28,7 @@ if [ "${1:0:1}" = '-' ]; then
 	set -- cassandra -f "$@"
 fi
 
-if [ "$1" = 'cassandra' ]; then
+function init_cassandra {
 	# TODO detect if this is a restart if necessary
 	: ${CASSANDRA_LISTEN_ADDRESS='auto'}
 	if [ "$CASSANDRA_LISTEN_ADDRESS" = 'auto' ]; then
@@ -66,6 +71,6 @@ if [ "$1" = 'cassandra' ]; then
 			sed -ri 's/^('"$rackdc"'=).*/\1 '"$val"'/' "$CASSANDRA_CONFIG/cassandra-rackdc.properties"
 		fi
 	done
-fi
+}
 
 exec /usr/bin/supervisord -c ${CONFIG_FILE}
