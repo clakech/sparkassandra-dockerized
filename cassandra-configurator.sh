@@ -12,15 +12,15 @@ CONFIG_FILE=${SUPERVISOR_CONF_DEFAULT}
 case "$1" in
     "master")
         CONFIG_FILE=${SUPERVISOR_CONF_MASTER}
-    ;;
+        ;;
     "worker")
         CONFIG_FILE=${SUPERVISOR_CONF_WORKER}
-        init_cassandra()
-    ;;
+        init_cassandra
+        ;;
     "cassandra")
         CONFIG_FILE=${SUPERVISOR_CONF_CASSANDRA}
-        init_cassandra()
-    ;;
+        init_cassandra
+        ;;
 esac
 
 # first arg is `-f` or `--some-option`
