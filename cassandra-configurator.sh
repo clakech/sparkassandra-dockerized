@@ -7,22 +7,6 @@ if [ -z "$NAME" ]; then
     echo "Now NAME=$NAME"
 fi
 
-CONFIG_FILE=${SUPERVISOR_CONF_DEFAULT}
-
-case "$1" in
-    "master")
-        CONFIG_FILE=${SUPERVISOR_CONF_MASTER}
-        ;;
-    "worker")
-        CONFIG_FILE=${SUPERVISOR_CONF_WORKER}
-        init_cassandra
-        ;;
-    "cassandra")
-        CONFIG_FILE=${SUPERVISOR_CONF_CASSANDRA}
-        init_cassandra
-        ;;
-esac
-
 # first arg is `-f` or `--some-option`
 if [ "${1:0:1}" = '-' ]; then
 	set -- cassandra -f "$@"
@@ -44,7 +28,7 @@ function init_cassandra {
 
 	: ${CASSANDRA_SEEDS:="$CASSANDRA_PORT_9042_TCP_ADDR"}
 	: ${CASSANDRA_SEEDS:="$CASSANDRA_BROADCAST_ADDRESS"}
-	
+
 	sed -ri 's/(- seeds:).*/\1 "'"$CASSANDRA_SEEDS"'"/' "$CASSANDRA_CONFIG/cassandra.yaml"
 
 	for yaml in \
@@ -72,5 +56,21 @@ function init_cassandra {
 		fi
 	done
 }
+
+CONFIG_FILE=${SUPERVISOR_CONF_DEFAULT}
+
+case "$1" in
+    "master")
+        CONFIG_FILE=${SUPERVISOR_CONF_MASTER}
+        ;;
+    "worker")
+        CONFIG_FILE=${SUPERVISOR_CONF_WORKER}
+        init_cassandra
+        ;;
+    "cassandra")
+        CONFIG_FILE=${SUPERVISOR_CONF_CASSANDRA}
+        init_cassandra
+        ;;
+esac
 
 exec /usr/bin/supervisord -c ${CONFIG_FILE}
