@@ -10,7 +10,7 @@ ENV SUPERVISOR_CONF_MASTER "supervisor.conf/supervisord-master.conf"
 ENV SUPERVISOR_CONF_WORKER "/supervisor.conf/supervisord-worker.conf"
 
 # download and install spark
-RUN curl -s https://www.apache.org/dist/spark/spark-1.6.1/spark-1.6.1-bin-hadoop2.6.tgz | tar -xz -C /usr/local/
+RUN curl -s http://d3kbcqa49mib13.cloudfront.net/spark-1.6.1-bin-hadoop2.6.tgz | tar -xz -C /usr/local/
 RUN cd /usr/local && ln -s spark-1.6.1-bin-hadoop2.6 spark
 
 # install cassandra
