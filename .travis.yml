@@ -5,7 +5,7 @@ before_install:
   - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
 
 script:
-  - docker build --no-cache -t turbineanalytics/docker-spark-cassandra .
+  - docker build --no-cache -t turbineanalytics/docker-spark-cassandra:${TRAVIS_BRANCH} .
 
 after_success:
   - docker push turbineanalytics/docker-spark-cassandra
