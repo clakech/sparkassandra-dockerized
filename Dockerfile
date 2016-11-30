@@ -47,6 +47,7 @@ RUN sed -ri '/authorizer: AllowAllAuthorizer/c\authorizer: CassandraAuthorizer' 
 RUN sed -ri '/endpoint_snitch: SimpleSnitch/c\endpoint_snitch: GossipingPropertyFileSnitch' "$CASSANDRA_CONFIG/cassandra.yaml"
 
 COPY cassandra-configurator.sh /cassandra-configurator.sh
+COPY update_users.sh /update_users.sh
 
 ENTRYPOINT ["/cassandra-configurator.sh"]
 
