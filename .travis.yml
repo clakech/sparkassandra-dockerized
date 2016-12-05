@@ -1,0 +1,18 @@
+services:
+  - docker
+
+before_install:
+  - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+
+script:
+  - docker build --no-cache -t turbineanalytics/docker-spark-cassandra:${TRAVIS_BRANCH} .
+
+after_success:
+  - docker push turbineanalytics/docker-spark-cassandra:${TRAVIS_BRANCH}
+
+notifications:
+  # Email notifications are disabled to not annoy anybody.
+  # See http://about.travis-ci.org/docs/user/build-configuration/ to learn more
+  # about configuring notification recipients and more.
+
+  email: false

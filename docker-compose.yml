@@ -1,0 +1,85 @@
+analytics-a:
+  environment:
+    NAME: analytics-a
+    CASSANDRA_DC: Analytics
+    CASSANDRA_CLUSTER_NAME: test
+    CASSANDRA_RACK: r1
+    CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
+  log_driver: ''
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.scheduler.affinity:host_label: api.test.common=true
+  tty: true
+  log_opt: {}
+  image: turbineanalytics/docker-spark-cassandra
+  links:
+  - 'cassandra:'
+  - 'spark-master:'
+  stdin_open: true
+cassandra-a:
+  environment:
+    NAME: cassandra-a
+    CASSANDRA_DC: Cassandra
+    CASSANDRA_CLUSTER_NAME: test
+    CASSANDRA_RACK: r1
+    CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
+  log_driver: ''
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.scheduler.affinity:host_label: api.test.common=true
+  tty: true
+  log_opt: {}
+  image: turbineanalytics/docker-spark-cassandra
+  links:
+  - 'cassandra:'
+  - 'spark-master:'
+  stdin_open: true
+analytics-b:
+  environment:
+    NAME: analytics-b
+    CASSANDRA_DC: Analytics
+    CASSANDRA_CLUSTER_NAME: test
+    CASSANDRA_RACK: r1
+    CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
+  log_driver: ''
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.scheduler.affinity:host_label: api.test.common=true
+  tty: true
+  log_opt: {}
+  image: turbineanalytics/docker-spark-cassandra
+  links:
+  - 'cassandra:'
+  - 'spark-master:'
+  stdin_open: true
+cassandra:
+  environment:
+    NAME: cassandra
+    CASSANDRA_DC: Cassandra
+    CASSANDRA_CLUSTER_NAME: test
+    CASSANDRA_RACK: r1
+    CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
+  log_driver: ''
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.scheduler.affinity:host_label: api.test.common=true
+  tty: true
+  log_opt: {}
+  image: turbineanalytics/docker-spark-cassandra
+  links:
+  - 'spark-master:'
+  stdin_open: true
+spark-master:
+  ports:
+  - 7080:8080/tcp
+  environment:
+    NAME: spark-master
+  log_driver: ''
+  labels:
+    io.rancher.container.pull_image: always
+    io.rancher.scheduler.affinity:host_label: api.test.common=true
+  tty: true
+  command:
+  - ./start-master.sh
+  log_opt: {}
+  image: turbineanalytics/docker-spark-cassandra

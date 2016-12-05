@@ -1,34 +1,31 @@
-FROM debian:jessie
+FROM java:8
 
-# install and configure supervisor
-RUN apt-get update && apt-get install -y supervisor && mkdir -p /var/log/supervisor
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-# install java & curl
-RUN echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" > /etc/apt/sources.list.d/webupd8team-java.list
-RUN echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list.d/webupd8team-java.list
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886
-RUN apt-get -y update
-RUN /bin/echo debconf shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install oracle-java7-installer oracle-java7-set-default curl
+# install and configure supervisor + curl
+RUN apt-get update && apt-get install -y supervisor curl && mkdir -p /var/log/supervisor
+#COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY supervisor.conf/ /supervisor.conf/
+ENV SUPERVISOR_CONF_DEFAULT "/supervisor.conf/supervisord-cass.conf"
+ENV SUPERVISOR_CONF_CASSANDRA "/supervisor.conf/supervisord-cass.conf"
+ENV SUPERVISOR_CONF_MASTER "supervisor.conf/supervisord-master.conf"
+ENV SUPERVISOR_CONF_WORKER "/supervisor.conf/supervisord-worker.conf"
 
 # download and install spark
-RUN curl -s http://d3kbcqa49mib13.cloudfront.net/spark-1.3.0-bin-hadoop2.4.tgz | tar -xz -C /usr/local/
-RUN cd /usr/local && ln -s spark-1.3.0-bin-hadoop2.4 spark
+RUN curl -s http://d3kbcqa49mib13.cloudfront.net/spark-1.6.1-bin-hadoop2.6.tgz | tar -xz -C /usr/local/
+RUN cd /usr/local && ln -s spark-1.6.1-bin-hadoop2.6 spark
 
 # install cassandra
-ENV CASSANDRA_VERSION 2.1.8
 RUN apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 514A2AD631A57A16DD0047EC749D6EEC0353B12C
-RUN echo 'deb http://www.apache.org/dist/cassandra/debian 21x main' >> /etc/apt/sources.list.d/cassandra.list
+RUN echo 'deb http://www.apache.org/dist/cassandra/debian 35x main' >> /etc/apt/sources.list.d/cassandra.list
 RUN apt-get update \
-	&& apt-get install -y cassandra="$CASSANDRA_VERSION" \
-	&& rm -rf /var/lib/apt/lists/*
+    && apt-get install net-tools \
+    && apt-get install -y cassandra \
+    && rm -rf /var/lib/apt/lists/*
 
 # copy some script to run spark
 COPY scripts/start-master.sh /start-master.sh
 COPY scripts/start-worker.sh /start-worker.sh
 COPY scripts/spark-shell.sh /spark-shell.sh
-COPY scripts/spark-cassandra-connector-assembly-1.3.0-RC1-SNAPSHOT.jar /spark-cassandra-connector-assembly-1.3.0-RC1-SNAPSHOT.jar
+COPY scripts/spark-cassandra-connector_2.10-1.6.0.jar /spark-cassandra-connector_2.10-1.6.0.jar
 COPY scripts/spark-defaults.conf /spark-defaults.conf
 
 # configure spark
@@ -44,14 +41,15 @@ ENV SPARK_WORKER_WEBUI_PORT 8081
 ENV CASSANDRA_CONFIG /etc/cassandra
 
 # listen to all rpc
-RUN sed -ri ' \
-		s/^(rpc_address:).*/\1 0.0.0.0/; \
-	' "$CASSANDRA_CONFIG/cassandra.yaml"
+RUN sed -ri 's/^(rpc_address:).*/\1 0.0.0.0/;' "$CASSANDRA_CONFIG/cassandra.yaml"
+RUN sed -ri '/authenticator: AllowAllAuthenticator/c\authenticator: PasswordAuthenticator' "$CASSANDRA_CONFIG/cassandra.yaml"
+RUN sed -ri '/authorizer: AllowAllAuthorizer/c\authorizer: CassandraAuthorizer' "$CASSANDRA_CONFIG/cassandra.yaml"
+RUN sed -ri '/endpoint_snitch: SimpleSnitch/c\endpoint_snitch: GossipingPropertyFileSnitch' "$CASSANDRA_CONFIG/cassandra.yaml"
 
 COPY cassandra-configurator.sh /cassandra-configurator.sh
-ENTRYPOINT ["/cassandra-configurator.sh"]
+COPY update_users.sh /update_users.sh
 
-VOLUME /var/lib/cassandra
+ENTRYPOINT ["/cassandra-configurator.sh"]
 
 ### Spark
 # 4040: spark ui
@@ -72,4 +70,4 @@ VOLUME /var/lib/cassandra
 # 9160: C* thrift service
 EXPOSE 4040 7000 7001 7002 7003 7004 7005 7006 7077 7199 8080 8081 8888 9042 9160
 
-CMD ["/usr/bin/supervisord"]
+CMD ["cassandra"]
